@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>理解runtime | yegail</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">理解runtime</h1><a id="logo" href="/.">yegail</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">理解runtime</h1><div class="post-meta">Jul 22, 2016<span> | </span><span class="category"><a href="/categories/Objective-C/">Objective-C</a></span></div><div class="post-content"><h3 id="runtime消息机制"><a href="#runtime消息机制" class="headerlink" title="runtime消息机制"></a>runtime消息机制</h3><ul>
+<li><p>概念</p>
+<p>运行时，系统在运行的时候的一些机制，主要是消息机制。C语言的函数的调用在编译的时候就决定调用哪个函数，编译完后直接顺序执行，没有二义性。而OC的函数调用是发送消息，是动态调用的过程。编译的时候并不能决定真正调用哪个函数，只有在真正运行的时候才会根据函数的名称找到对应的函数来调用。</p>
+<a id="more"></a>
+</li>
+<li><p>SEL方法选择器</p>
+<p>SEL的主要作用是快速通过方法名字找到对应的方法函数指针，然后调用函数。SEL本身是一个Int类型的地址，地址中存放着方法的名字。在一个类中，一个方法对应一个SEL。所以iOS类中不能存在2个名称相同的方法，即使参数类型不同。</p>
+</li>
+<li><p>如何找到方法</p>
+<ol>
+<li><p>编译器将代码[obj makeText];转化为objc_msgSend(obj, @selector(makeText));</p>
+</li>
+<li><p>在objc_msgSend函数中，先通过obj的isa指针找到obj对应的class；</p>
+</li>
+<li><p>在class中先去cache中通过SEL查找对应函数的method，若cache中未找到，再去methodList中查找;</p>
+</li>
+<li><p>若methodList中未找到，则去superClass中查找，若能找到则将method加入到cache中，以方便下次查找，并通过method中的函数指针跳转到对应的函数中去执行。</p>
+</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li>使用场景</li>
+</ul>
+<p>三种：Objective-C Source Code、NSObject Methods、Runtime Functions</p>
+<ol>
+<li>Objective-C Source Code：大部分时候runtime是在幕后工作着。在编译含有OC类、方法的代码时，编译器通过runtime的消息机制在幕后完成创建数据、调用函数的工作。Runtime的实质是消息的发送，在OC源码的使用过程中会被调用。</li>
+<li>NSObject Methods：NSObject的方法，isKindOfClass、isMemberOfClass、respondsToSelector、instancesRespondToSelector、conformsToProtocol、methodForSelector。</li>
+<li>Runtime Runctions：Runtime系统是一个C语言动态库。</li>
+</ol>
+<ul>
+<li><p>常见使用</p>
+<p>动态交换两个方法的实现、实现分类也可以添加属性<br>实现NSCoding的自动归档和解档、实现字典转model的自动转换、Hook</p>
+</li>
+</ul>
+</div><div class="tags"><a href="/tags/runtime/">runtime</a></div><div class="post-nav"><a href="/2017/01/04/2017计划/" class="pre">2017计划</a><a href="/2016/07/21/iOS实现MD5和HAS1加密算法/" class="next">iOS实现MD5和HAS1加密算法</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.0"><script src="/js/gitment.browser.js?v=0.0.0"></script><script>var gitment = new Gitment({
+  owner: '642182927@qq.com',
+  repo: 'ludan.github.io',
+  oauth: {
+    client_id: '9b403abd4250ae273b87',
+    client_secret: 'f3736c736842ddfb78a059b75fcf7973aaa73f1b',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Objective-C/">Objective-C</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/swift/">swift</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/年度总结/">年度总结</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/算法/">算法</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/年度总结/" style="font-size: 15px;">年度总结</a> <a href="/tags/iOS-混合开发/" style="font-size: 15px;">iOS, 混合开发</a> <a href="/tags/swift/" style="font-size: 15px;">swift</a> <a href="/tags/算法/" style="font-size: 15px;">算法</a> <a href="/tags/Live-is-difficult/" style="font-size: 15px;">Live is difficult</a> <a href="/tags/runtime/" style="font-size: 15px;">runtime</a> <a href="/tags/Python/" style="font-size: 15px;">Python</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/18/fastlane/">fastlane</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/03/今天星期四，天气晴/">今天星期四，天气晴</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/01/我有很多烦恼事/">我有很多烦恼事</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/18/cordova之JS与iOS通信/">cordova之JS与iOS通信</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/06/求2-10000000的素数/">求2-1000万的素数</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/swift3-0基础/">swift3.0基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/04/2017计划/">2017计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/22/理解runtime/">理解runtime</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/21/iOS实现MD5和HAS1加密算法/">iOS实现MD5和HAS1加密算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/19/swift基本语法/">swift基本语法</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2017 <a href="/." rel="nofollow">yegail.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.1.20/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.1.20/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
